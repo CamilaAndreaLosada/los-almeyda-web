@@ -33,6 +33,41 @@ app.use('/api/recetas', require('./routes/recetas')); // Ruta de recetas
 app.use('/api/servicios', require('./routes/servicios')); // Ruta de servicios
 
 // =====================================================================================
+// RUTA TEMPORAL DE INSTALACIÓN DE BASE DE DATOS
+// =====================================================================================
+const fs = require('fs');
+app.get('/setup-db', async (req, res) => {
+  try {
+    const db = require('./config/db');
+    const sqlPath = path.join(__dirname, 'database.sql');
+
+    if (!fs.existsSync(sqlPath)) {
+      return res.status(404).send('❌ Archivo database.sql no encontrado en el servidor.');
+    }
+
+    const sql = fs.readFileSync(sqlPath, 'utf8');
+    const statements = sql.split(/;\s*$/m).map(s => s.trim()).filter(s => s.length > 0);
+
+    let output = '<h1>Log de Instalación</h1><pre>';
+
+    for (const statement of statements) {
+      if (statement.startsWith('--') || statement.startsWith('/*')) continue;
+      try {
+        await db.query(statement);
+        output += `✅ ÉXITO: ${statement.substring(0, 50)}...\n`;
+      } catch (err) {
+        output += `⚠️ ADVERTENCIA: ${err.message}\n`;
+      }
+    }
+
+    output += '\n🏁 ¡PROCESO TERMINADO!</pre>';
+    res.send(output);
+  } catch (error) {
+    res.status(500).send(`❌ Error fatal: ${error.message}`);
+  }
+});
+
+// =====================================================================================
 // SIRVE ARCHIVOS ESTÁTICOS (CSS, JS, HTML, imágenes, etc.)
 // =====================================================================================
 app.use(express.static(path.join(__dirname, 'public')));

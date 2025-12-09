@@ -112,6 +112,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 INSERT IGNORE INTO `CATEGORIAS` (nombre_categoria) VALUES 
 ('Cerdo'),
 ('Res'),
-('Pollo'),
+('Aves'),
+('Del Mar'),
 ('Embutidos'),
-('Especiales');
+('Servicios');

@@ -1,5 +1,5 @@
 // server.js
-// server.js - Deployment bump 2025-12-09
+// server.js - Deployment bump 2025-12-09 VERIFICACION-FINAL
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');

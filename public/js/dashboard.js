@@ -196,58 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Manejar el envío del formulario de servicio
-    const serviceForm = document.getElementById('service-form');
-    if (serviceForm) {
-        serviceForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!checkAdminAccess()) return;
 
-            toggleLoading(true);
-
-            const data = {
-                nombre: document.getElementById('service-name').value,
-                descripcion: document.getElementById('service-description').value,
-                precio: parseFloat(document.getElementById('service-price').value),
-                imagen_url: document.getElementById('service-image-url').value
-            };
-
-            if (!data.nombre || isNaN(data.precio) || data.precio <= 0) {
-                showMessage('Por favor, completa los campos obligatorios.', 'error');
-                toggleLoading(false);
-                return;
-            }
-
-            const token = localStorage.getItem('token');
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/servicios`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                if (!response.ok) {
-                    const errorResult = await response.json().catch(() => ({ message: 'Error desconocido' }));
-                    showMessage(errorResult.message || `Error HTTP: ${response.status}`, 'error');
-                    return;
-                }
-
-                const result = await response.json();
-                showMessage(result.message, 'success');
-                serviceForm.reset();
-
-            } catch (error) {
-                console.error('Error al registrar servicio:', error);
-                showMessage('Error de conexión al registrar servicio.', 'error');
-            } finally {
-                toggleLoading(false);
-            }
-        });
-    }
 
     // Manejar el cierre de sesión
     if (logoutButton) {

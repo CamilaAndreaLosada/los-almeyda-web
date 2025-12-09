@@ -12,10 +12,21 @@ const isAdmin = (req, res, next) => {
     next();
 };
 
-// Obtener todos los servicios
+// Obtener todos los servicios (que ahora son Productos de categoría 'Servicios')
 router.get('/', async (req, res) => {
     try {
-        const query = 'SELECT * FROM SERVICIOS ORDER BY nombre ASC';
+        const query = `
+            SELECT 
+                p.id_producto AS id_servicio, 
+                p.nombre, 
+                p.descripcion, 
+                p.precio, 
+                p.imagen_url 
+            FROM PRODUCTOS p
+            JOIN CATEGORIAS c ON p.id_categoria = c.id_categoria
+            WHERE c.nombre_categoria = 'Servicios'
+            ORDER BY p.nombre ASC
+        `;
         const [servicios] = await db.query(query);
         res.status(200).json(servicios);
     } catch (error) {
@@ -40,7 +51,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// Crear un nuevo servicio (solo administradores)
+// Crear un nuevo servicio (guardado como Producto)
 router.post('/', verifyToken, isAdmin, async (req, res) => {
     const { nombre, descripcion, precio, imagen_url } = req.body;
 
@@ -49,7 +60,11 @@ router.post('/', verifyToken, isAdmin, async (req, res) => {
     }
 
     try {
-        const query = 'INSERT INTO SERVICIOS (nombre, descripcion, precio, imagen_url) VALUES (?, ?, ?, ?)';
+        // Obtenemos el ID de la categoría 'Servicios' dinámicamente
+        const query = `
+            INSERT INTO PRODUCTOS (nombre, descripcion, precio, stock, id_categoria, imagen_url, unidad)
+            VALUES (?, ?, ?, 100, (SELECT id_categoria FROM CATEGORIAS WHERE nombre_categoria = 'Servicios' LIMIT 1), ?, 'unidad')
+        `;
         const [result] = await db.query(query, [nombre, descripcion, precio, imagen_url || null]);
         res.status(201).json({ message: 'Servicio registrado exitosamente.', id_servicio: result.insertId });
     } catch (error) {
@@ -58,7 +73,7 @@ router.post('/', verifyToken, isAdmin, async (req, res) => {
     }
 });
 
-// Actualizar un servicio (solo administradores)
+// Actualizar un servicio (que es un Producto)
 router.put('/:id', verifyToken, isAdmin, async (req, res) => {
     const { id } = req.params;
     const { nombre, descripcion, precio, imagen_url } = req.body;
@@ -68,7 +83,11 @@ router.put('/:id', verifyToken, isAdmin, async (req, res) => {
     }
 
     try {
-        const query = 'UPDATE SERVICIOS SET nombre = ?, descripcion = ?, precio = ?, imagen_url = ? WHERE id_servicio = ?';
+        const query = `
+            UPDATE PRODUCTOS 
+            SET nombre = ?, descripcion = ?, precio = ?, imagen_url = ? 
+            WHERE id_producto = ? AND id_categoria = (SELECT id_categoria FROM CATEGORIAS WHERE nombre_categoria = 'Servicios' LIMIT 1)
+        `;
         const [result] = await db.query(query, [nombre, descripcion, precio, imagen_url || null, id]);
 
         if (result.affectedRows === 0) {
@@ -81,11 +100,11 @@ router.put('/:id', verifyToken, isAdmin, async (req, res) => {
     }
 });
 
-// Eliminar un servicio (solo administradores)
+// Eliminar un servicio (que es un Producto)
 router.delete('/:id', verifyToken, isAdmin, async (req, res) => {
     const { id } = req.params;
     try {
-        const query = 'DELETE FROM SERVICIOS WHERE id_servicio = ?';
+        const query = 'DELETE FROM PRODUCTOS WHERE id_producto = ?';
         const [result] = await db.query(query, [id]);
 
         if (result.affectedRows === 0) {

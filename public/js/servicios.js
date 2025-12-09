@@ -20,7 +20,7 @@ async function loadServicios() {
         renderServicios();
     } catch (error) {
         console.error('Error al cargar servicios:', error);
-        const container = document.getElementById('servicios-container');
+        const container = document.getElementById('services-grid');
         if (container) {
             container.innerHTML = '<p class="text-center text-red-500">Error al cargar servicios. Por favor intenta de nuevo.</p>';
         }
@@ -28,7 +28,7 @@ async function loadServicios() {
 }
 
 function renderServicios() {
-    const container = document.getElementById('servicios-container');
+    const container = document.getElementById('services-grid');
     if (!container) return;
 
     if (servicios.length === 0) {

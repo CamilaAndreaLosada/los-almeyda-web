@@ -31,12 +31,12 @@ function setupPaymentMethodSelection() {
     // QR placeholders - El usuario debe reemplazar con sus QR reales
     const qrCodes = {
         'Bancolombia': {
-            image: '/Imagenes/qr-bancolombia.png',
-            reference: 'Referencia: BC-12345'
+            image: '/Imagenes/qr.png',
+            reference: 'Cuenta Ahorros: 123-456789-00'
         },
         'Bre-B': {
-            image: '/Imagenes/qr-breb.png',
-            reference: 'Referencia: BB-67890'
+            image: '/Imagenes/qr.png',
+            reference: 'Número: 300 123 4567'
         }
     };
 
